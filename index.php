@@ -19,6 +19,7 @@
                 <li><a href="challenges.php">Challenges</a></li>
                 <li><a href="leaderboard.php">Leaderboard</a></li>
                 <li><a href="rewards.php">Rewards</a></li>
+                <li><a href="quiz.php">Quiz</a></li>
             </ul>
         </nav>
         <div class="user-menu">
@@ -182,21 +183,25 @@
     </main>
 
     <nav class="mobile-nav">
-        <a href="index.html" class="active">
+        <a href="index.php" class="active">
             <span class="material-symbols-outlined">dashboard</span>
             <span>Dashboard</span>
         </a>
-        <a href="challenges.html">
+        <a href="challenges.php">
             <span class="material-symbols-outlined">emoji_events</span>
             <span>Challenges</span>
         </a>
-        <a href="leaderboard.html">
+        <a href="leaderboard.php">
             <span class="material-symbols-outlined">leaderboard</span>
             <span>Leaderboard</span>
         </a>
-        <a href="rewards.html">
+        <a href="rewards.php">
             <span class="material-symbols-outlined">redeem</span>
             <span>Rewards</span>
+        </a>
+        <a href="quiz.php">
+            <span class="material-symbols-outlined">quiz</span>
+            <span>Quiz</span>
         </a>
     </nav>
 

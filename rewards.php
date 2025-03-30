@@ -19,6 +19,8 @@
                 <li><a href="challenges.php">Challenges</a></li>
                 <li><a href="leaderboard.php">Leaderboard</a></li>
                 <li class="active"><a href="rewards.php">Rewards</a></li>
+                <li><a href="quiz.php">Quiz</a></li>
+
             </ul>
         </nav>
         <div class="user-menu">
