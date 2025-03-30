@@ -189,10 +189,10 @@ function initializeThemeToggle() {
     </label>
   `;
 
-  // Add the toggle to the header before user menu
-  const header = document.querySelector('header');
+  // Add the toggle to the user menu before points display
   const userMenu = document.querySelector('.user-menu');
-  header.insertBefore(themeToggleContainer, userMenu);
+  const pointsDisplay = document.querySelector('.points-display');
+  userMenu.insertBefore(themeToggleContainer, pointsDisplay);
 
   // Check for saved theme preference or use preferred color scheme
   const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
