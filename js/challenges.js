@@ -140,17 +140,21 @@ function populateChallenges(container, challenges) {
         // Calculate progress percentage
         const progressPercentage = (challenge.progress / challenge.total) * 100;
         
-        // Create button text based on status
+        // Create button text and class based on status
         let buttonText;
         let buttonClass = '';
+        let buttonType = '';
         
         if (challenge.status === 'completed') {
             buttonText = 'Completed';
             buttonClass = 'disabled';
+            buttonType = 'btn-outline';
         } else if (challenge.status === 'active') {
             buttonText = 'In Progress';
+            buttonType = 'btn-outline';
         } else {
             buttonText = 'Join Challenge';
+            buttonType = 'btn-primary';
         }
         
         card.innerHTML = `
@@ -175,10 +179,44 @@ function populateChallenges(container, challenges) {
                     <span>${challenge.daysLeft} days left</span>
                 </div>
             </div>
-            <button class="reward-btn ${buttonClass}" style="width: 100%; margin-top: 16px;" ${challenge.status === 'completed' ? 'disabled' : ''}>${buttonText}</button>
+            <div class="challenge-actions">
+                <button class="btn ${buttonType} ${buttonClass}" style="width: 100%;" ${challenge.status === 'completed' ? 'disabled' : ''}>${buttonText}</button>
+            </div>
         `;
         
         container.appendChild(card);
+        
+        // Add event listeners to buttons
+        const button = card.querySelector('.btn');
+        button.addEventListener('click', function() {
+            if (challenge.status === 'available') {
+                // Join Challenge functionality
+                challenge.status = 'active';
+                challenge.progress = 0;
+                alert(`You've joined the "${challenge.title}" challenge!`);
+                
+                // Refresh the challenges display
+                container.innerHTML = '';
+                populateChallenges(container, challenges);
+            } else if (challenge.status === 'active') {
+                // In Progress functionality - show progress update modal/form
+                alert(`Track your progress for "${challenge.title}"`);
+                
+                // For demo purposes, increment progress
+                if (challenge.progress < challenge.total) {
+                    challenge.progress += 1;
+                    
+                    // Check if challenge is completed
+                    if (challenge.progress >= challenge.total) {
+                        challenge.status = 'completed';
+                        alert(`Congratulations! You've completed the "${challenge.title}" challenge!`);
+                    }
+                    
+                    // Refresh the challenges display
+                    container.innerHTML = '';
+                    populateChallenges(container, challenges);
+                }
+            }
+        });
     });
 }
-
