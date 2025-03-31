@@ -1,3 +1,11 @@
+<?php
+session_start();
+// If user is not logged in, redirect to login page
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    header('Location: login.php');
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,9 +40,9 @@
             </div>
             <div class="user-dropdown" id="user-dropdown">
                 <ul>
-                    <li><a href="profile.html">Profile</a></li>
-                    <li><a href="settings.html">Settings</a></li>
-                    <li><a href="api/logout.php" id="logout-btn">Logout</a></li>
+                    <li><a href="profile.php">Profile</a></li>
+                    <li><a href="settings.php">Settings</a></li>
+                    <li><a href="api/logout.php">Logout</a></li>
                 </ul>
             </div>
         </div>
@@ -43,11 +51,11 @@
     <main>
         <section class="welcome-section">
             <div class="welcome-text">
-                <h2>Welcome back, <span id="user-name">Alex</span>!</h2>
+                <h2>Welcome back, <span id="user-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>!</h2>
                 <p>You're making great progress. Keep it up!</p>
             </div>
             <div class="points-display">
-                <span class="points-value" id="user-points">1,250</span>
+                <span class="points-value" id="user-points"><?php echo number_format($_SESSION['points']); ?></span>
                 <span class="points-label">Points</span>
             </div>
         </section>
@@ -204,8 +212,18 @@
             <span>Quiz</span>
         </a>
     </nav>
-
-    <script src="js/script.js"></script>
+<script>
+// Pass PHP session data to JavaScript
+const userData = {
+    name: '<?php echo htmlspecialchars($_SESSION['username']); ?>',
+    points: <?php echo isset($_SESSION['points']) ? (int)$_SESSION['points'] : 0; ?>,
+    steps: 7500,
+    calories: 1200,
+    activeMinutes: 30
+};
+</script>
+<script src="js/script.js"></script>
+<script src="js/s.js"></script>
     <script src="js/s.js"></script>
 </body>
 </html>

@@ -1,11 +1,4 @@
-// User data
-let userData = {
-    name: 'Alex',
-    points: 1250,
-    steps: 7500,
-    calories: 1200,
-    activeMinutes: 30
-};
+// User data is loaded from PHP
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', function() {
@@ -56,31 +49,53 @@ function updateUserData() {
 
 // Setup user dropdown
 function setupUserDropdown() {
+    console.log('Setting up user dropdown...');
     const userMenuBtn = document.getElementById('user-menu-btn');
     const userDropdown = document.getElementById('user-dropdown');
     
     if (userMenuBtn && userDropdown) {
-        userMenuBtn.addEventListener('click', function() {
-            userDropdown.classList.toggle('active');
+        console.log('Found menu elements');
+        
+        userMenuBtn.addEventListener('click', function(e) {
+            console.log('User menu clicked');
+            e.preventDefault();
+            e.stopPropagation(); // Stop event from bubbling up
+            
+            // Force display block before toggling class for animation
+            if (!userDropdown.classList.contains('active')) {
+                userDropdown.style.display = 'block';
+                setTimeout(() => userDropdown.classList.add('active'), 0);
+            } else {
+                userDropdown.classList.remove('active');
+                setTimeout(() => userDropdown.style.display = 'none', 300); // Match transition time
+            }
+            console.log('Dropdown state:', userDropdown.classList.contains('active'));
         });
         
         // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
+            console.log('Document clicked, checking if should close dropdown');
             if (!userMenuBtn.contains(event.target) && !userDropdown.contains(event.target)) {
                 userDropdown.classList.remove('active');
+                setTimeout(() => userDropdown.style.display = 'none', 300);
             }
         });
+    } else {
+        console.error('Menu elements not found:',
+            'userMenuBtn:', userMenuBtn,
+            'userDropdown:', userDropdown
+        );
     }
 }
 
 // Populate dashboard leaderboard
 function populateDashboardLeaderboard() {
     const leaderboardData = [
-        { rank: 1, name: 'Alex J.', points: 1250, avatar: 'https://via.placeholder.com/32' },
-        { rank: 2, name: 'Sarah W.', points: 1120, avatar: 'https://via.placeholder.com/32' },
-        { rank: 3, name: 'Michael B.', points: 980, avatar: 'https://via.placeholder.com/32' },
-        { rank: 4, name: 'Jessica D.', points: 870, avatar: 'https://via.placeholder.com/32' },
-        { rank: 5, name: 'David M.', points: 760, avatar: 'https://via.placeholder.com/32' }
+        { rank: 1, name: userData.name, points: userData.points, avatar: 'https://via.placeholder.com/32' },
+        { rank: 2, name: 'Sarah W.', points: Math.floor(userData.points * 0.9), avatar: 'https://via.placeholder.com/32' },
+        { rank: 3, name: 'Michael B.', points: Math.floor(userData.points * 0.8), avatar: 'https://via.placeholder.com/32' },
+        { rank: 4, name: 'Jessica D.', points: Math.floor(userData.points * 0.7), avatar: 'https://via.placeholder.com/32' },
+        { rank: 5, name: 'David M.', points: Math.floor(userData.points * 0.6), avatar: 'https://via.placeholder.com/32' }
     ];
     
     const leaderboardList = document.getElementById('leaderboard-list');
