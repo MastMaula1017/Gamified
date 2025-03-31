@@ -1,0 +1,17 @@
+Options -Indexes
+DirectoryIndex dashboard.php
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /health-gamification/admin/
+    
+    # Redirect index.php to dashboard.php
+    RewriteRule ^index\.php$ dashboard.php [L,R=301]
+    
+    # If the request is not for an existing file or directory
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Route everything else through dashboard.php
+    RewriteRule ^$ dashboard.php [L]
+</IfModule>

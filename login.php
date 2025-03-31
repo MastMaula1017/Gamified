@@ -4,7 +4,11 @@ session_start();
 
 // Redirect if already logged in
 if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
-    header("Location: index.php");
+    if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
+        header("Location: admin/index.php");
+    } else {
+        header("Location: index.php");
+    }
     exit;
 }
 ?>
@@ -54,43 +58,50 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
 
     <script>
         document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
+    e.preventDefault();
+    
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const messageDiv = document.getElementById('login-message');
+    
+    // Create form data
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('password', password);
+    
+    // Send login request
+    fetch('api/login.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Login response:', data); // Debug log
+        if (data.success) {
+            messageDiv.className = 'auth-message success';
+            messageDiv.textContent = data.message;
             
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const messageDiv = document.getElementById('login-message');
-            
-            // Create form data
-            const formData = new FormData();
-            formData.append('username', username);
-            formData.append('password', password);
-            
-            // Send login request
-            fetch('api/login.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    messageDiv.className = 'auth-message success';
-                    messageDiv.textContent = data.message;
-                    
-                    // Redirect to dashboard after successful login
-                    setTimeout(() => {
-                        window.location.href = 'index.php';
-                    }, 1000);
+            // Redirect based on admin status
+            setTimeout(() => {
+                if (data.is_admin) {
+                    console.log('Admin login detected, redirecting to dashboard...'); // Debug log
+                    window.location.href = 'admin/dashboard.php';
                 } else {
-                    messageDiv.className = 'auth-message error';
-                    messageDiv.textContent = data.message;
+                    console.log('Regular user login, redirecting to index...'); // Debug log
+                    window.location.href = 'index.php';
                 }
-            })
-            .catch(error => {
-                messageDiv.className = 'auth-message error';
-                messageDiv.textContent = 'An error occurred. Please try again.';
-                console.error('Error:', error);
-            });
-        });
+            }, 1000);
+        } else {
+            messageDiv.className = 'auth-message error';
+            messageDiv.textContent = data.message;
+        }
+    })
+    .catch(error => {
+        messageDiv.className = 'auth-message error';
+        messageDiv.textContent = 'An error occurred. Please try again.';
+        console.error('Error:', error);
+    });
+});
     </script>
 </body>
 </html>

@@ -30,6 +30,11 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                 <li class="active"><a href="leaderboard.php">Leaderboard</a></li>
                 <li><a href="rewards.php">Rewards</a></li>
                 <li><a href="quiz.php">Quiz</a></li>
+                <li class=""><a href="contact.php">Contact Us</a></li>
+                <?php if(isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true): ?>
+            <li><a href="admin/index.php">Admin Panel</a></li>
+            <?php endif; ?>
+
             </ul>
         </nav>
         <div class="user-menu">
