@@ -223,7 +223,7 @@ const userData = {
 };
 </script>
 <script src="js/script.js"></script>
-<script src="js/s.js"></script>
-    <script src="js/s.js"></script>
+<!-- <script src="js/s.js"></script> -->
+    <script src="js/dropdark.js"></script>
 </body>
 </html>
