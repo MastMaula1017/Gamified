@@ -1,0 +1,247 @@
+<?php
+session_start();
+
+// Check if user is logged in
+if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    header("Location: login.php");
+    exit;
+}
+
+// Connect to database
+require_once('includes/db_connect.php');
+
+// Handle password change
+$message = '';
+$error = '';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $current_password = $_POST['current_password'];
+    $new_password = $_POST['new_password'];
+    $confirm_password = $_POST['confirm_password'];
+    
+    // Validate inputs
+    if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
+        $error = "All fields are required";
+    } else if ($new_password !== $confirm_password) {
+        $error = "New passwords do not match";
+    } else if (strlen($new_password) < 6) {
+        $error = "New password must be at least 6 characters long";
+    } else {
+        // Get user's current password
+        $stmt = $conn->prepare("SELECT password FROM users WHERE id = ?");
+        $stmt->bind_param("i", $_SESSION['user_id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+        $stmt->close();
+        
+        // Verify current password
+        if (password_verify($current_password, $user['password'])) {
+            // Update password
+            $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+            $stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+            $stmt->bind_param("si", $hashed_password, $_SESSION['user_id']);
+            
+            if ($stmt->execute()) {
+                $message = "Password updated successfully";
+            } else {
+                $error = "Error updating password";
+            }
+            $stmt->close();
+        } else {
+            $error = "Current password is incorrect";
+        }
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - FitQuest</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style>
+        .profile-container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: var(--background-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-header h2 {
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .change-password-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background-color: var(--background-light);
+            color: var(--text-color);
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        #password-strength {
+            font-size: 0.875rem;
+            margin-top: 4px;
+        }
+
+        .strength-0 { color: #ef4444; }
+        .strength-1 { color: #f97316; }
+        .strength-2 { color: #eab308; }
+        .strength-3 { color: #22c55e; }
+        .strength-4 { color: #15803d; }
+
+        .message {
+            padding: 12px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span class="material-symbols-outlined">fitness_center</span>
+            <h1>FitQuest</h1>
+        </div>
+        <nav class="desktop-nav">
+            <ul>
+                <li><a href="index.php">Home</a></li>
+                <li><a href="challenges.php">Challenges</a></li>
+                <li><a href="leaderboard.php">Leaderboard</a></li>
+                <li><a href="rewards.php">Rewards</a></li>
+                <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
+                    <li><a href="admin/index.php">Admin Panel</a></li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+        <div class="user-menu">
+            <div class="user-avatar" id="user-menu-btn">
+                <img src="https://via.placeholder.com/40" alt="User avatar">
+            </div>
+            <div class="user-dropdown" id="user-dropdown">
+                <ul>
+                    <li class="active"><a href="profile.php">Profile</a></li>
+                    <li><a href="settings.php">Settings</a></li>
+                    <li><a href="api/logout.php">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="profile-container">
+            <div class="profile-header">
+                <h2>Change Password</h2>
+            </div>
+
+            <?php if ($message): ?>
+                <div class="message success">
+                    <?php echo htmlspecialchars($message); ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($error): ?>
+                <div class="message error">
+                    <?php echo htmlspecialchars($error); ?>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST" class="change-password-form">
+                <div class="form-group">
+                    <label for="current_password">Current Password</label>
+                    <input type="password" id="current_password" name="current_password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="new_password">New Password</label>
+                    <input type="password" id="new_password" name="new_password"
+                           pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                           title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters"
+                           required>
+                    <div id="password-strength"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password">Confirm New Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required>
+                </div>
+
+                <button type="submit" class="submit-btn">Update Password</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Setup user dropdown
+        document.getElementById('user-menu-btn').addEventListener('click', function() {
+            document.getElementById('user-dropdown').classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenuBtn = document.getElementById('user-menu-btn');
+            const userDropdown = document.getElementById('user-dropdown');
+            
+            if (!userMenuBtn.contains(event.target) && !userDropdown.contains(event.target)) {
+                userDropdown.classList.remove('active');
+            }
+        });
+    </script>
+    <script src="js/profile.js"></script>
+</body>
+</html>
