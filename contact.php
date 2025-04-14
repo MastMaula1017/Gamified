@@ -8,7 +8,19 @@ $error_message = "";
 
 // Check if form was submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_contact'])) {
-    // Connect to database
+    try {
+        // Connect to database
+        require_once('includes/db_connect.php');
+        
+        // Check if database exists
+        if (!mysqli_select_db($conn, "health_gamification")) {
+            throw new Exception("Database 'health_gamification' does not exist. Please set up the database first.");
+        }
+        
+        // Ensure the contact_messages table exists
+    require_once('admin/setup_contact_messages.php');
+    
+    // Reconnect to database since setup script closes connection
     require_once('includes/db_connect.php');
     
     // Get form data and sanitize inputs
@@ -38,23 +50,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_contact'])) {
     
     // If no errors, insert into database
     if (empty($errors)) {
-        $stmt = $conn->prepare("INSERT INTO contact_messages (name, email, subject, message) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("ssss", $name, $email, $subject, $message);
-        
-        if ($stmt->execute()) {
-            $success_message = "Thank you for your message! We'll get back to you soon.";
-            // Clear form data after successful submission
-            $name = $email = $subject = $message = "";
-        } else {
-            $error_message = "Error: " . $stmt->error;
+        try {
+            $stmt = $conn->prepare("INSERT INTO contact_messages (name, email, subject, message) VALUES (?, ?, ?, ?)");
+            if (!$stmt) {
+                throw new Exception("Database error: Could not prepare statement. " . $conn->error);
+            }
+            
+            if (!$stmt->bind_param("ssss", $name, $email, $subject, $message)) {
+                throw new Exception("Database error: Could not bind parameters. " . $stmt->error);
+            }
+            
+            if ($stmt->execute()) {
+                $success_message = "Message sent successfully! 🎉 Our team will review your message and get back to you within 24-48 hours. Thank you for reaching out to us!";
+                // Clear form data after successful submission
+                $name = $email = $subject = $message = "";
+            } else {
+                throw new Exception("Database error: Could not save message. " . $stmt->error);
+            }
+            
+            $stmt->close();
+        } catch (Exception $e) {
+            $error_message = "Sorry, we couldn't send your message. Please try again later or contact support directly.";
+            error_log("Contact form error: " . $e->getMessage());
         }
-        
-        $stmt->close();
     } else {
         $error_message = implode("<br>", $errors);
     }
     
-    $conn->close();
+    } catch (Exception $e) {
+        $error_message = "Sorry, we couldn't process your request. Please try again later.";
+        error_log("Contact form error: " . $e->getMessage());
+    } finally {
+        if (isset($conn)) {
+            $conn->close();
+        }
+    }
 }
 ?>
 
@@ -189,10 +219,54 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_contact'])) {
             font-size: 0.875rem;
             margin-top: var(--spacing-xs);
             display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
         .form-group.error .error-text {
             display: block;
+            opacity: 1;
+        }
+        
+        .form-group.error input,
+        .form-group.error textarea {
+            border-color: var(--danger-color);
+            background-color: rgba(255, 0, 0, 0.02);
+        }
+        
+        .auth-message {
+            max-width: 600px;
+            margin: 1rem auto;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+        
+        .auth-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 1.5rem;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .auth-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
         
         .contact-btn {
@@ -348,83 +422,79 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_contact'])) {
             <span>Activity</span>
         </a>
     </nav>
+<script src="js/header.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show success message if it exists
+        const successMessage = document.querySelector('.auth-message.success');
+        if (successMessage) {
+            successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
 
-    <script>
         // Form validation
         const contactForm = document.getElementById('contact-form');
         
         if (contactForm) {
             contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
                 let isValid = true;
+                const formData = new FormData(this);
                 
-                // Validate name
-                const nameInput = document.getElementById('name');
-                const nameGroup = document.getElementById('name-group');
+                document.querySelectorAll('.form-group').forEach(group => {
+                    group.classList.remove('error');
+                });
+
+                const fields = [
+                    { id: 'name', validate: value => value.trim() !== '' },
+                    { id: 'email', validate: value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()) },
+                    { id: 'subject', validate: value => value.trim() !== '' },
+                    { id: 'message', validate: value => value.trim() !== '' }
+                ];
+
+                fields.forEach(field => {
+                    const value = formData.get(field.id);
+                    if (!field.validate(value)) {
+                        document.getElementById(`${field.id}-group`).classList.add('error');
+                        isValid = false;
+                    }
+                });
                 
-                if (!nameInput.value.trim()) {
-                    nameGroup.classList.add('error');
-                    isValid = false;
+                if (isValid) {
+                    const submitInput = document.createElement('input');
+                    submitInput.type = 'hidden';
+                    submitInput.name = 'submit_contact';
+                    submitInput.value = '1';
+                    this.appendChild(submitInput);
+                    this.submit();
                 } else {
-                    nameGroup.classList.remove('error');
-                }
-                
-                // Validate email
-                const emailInput = document.getElementById('email');
-                const emailGroup = document.getElementById('email-group');
-                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                
-                if (!emailInput.value.trim() || !emailPattern.test(emailInput.value)) {
-                    emailGroup.classList.add('error');
-                    isValid = false;
-                } else {
-                    emailGroup.classList.remove('error');
-                }
-                
-                // Validate subject
-                const subjectInput = document.getElementById('subject');
-                const subjectGroup = document.getElementById('subject-group');
-                
-                if (!subjectInput.value.trim()) {
-                    subjectGroup.classList.add('error');
-                    isValid = false;
-                } else {
-                    subjectGroup.classList.remove('error');
-                }
-                
-                // Validate message
-                const messageInput = document.getElementById('message');
-                const messageGroup = document.getElementById('message-group');
-                
-                if (!messageInput.value.trim()) {
-                    messageGroup.classList.add('error');
-                    isValid = false;
-                } else {
-                    messageGroup.classList.remove('error');
-                }
-                
-                if (!isValid) {
-                    e.preventDefault();
+                    const firstError = document.querySelector('.form-group.error');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
                 }
             });
 
-            // Real-time validation
-            contactForm.querySelectorAll('input, textarea').forEach(input => {
-                input.addEventListener('blur', () => validateInput(input));
-                input.addEventListener('input', () => validateInput(input));
-            });
-
-            function validateInput(input) {
+            let debounceTimeout;
+            const validateField = (input) => {
+                const value = input.value.trim();
                 const formGroup = input.closest('.form-group');
-                
-                if (input.id === 'email') {
-                    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    formGroup.classList.toggle('error', !input.value.trim() || !emailPattern.test(input.value));
-                } else {
-                    formGroup.classList.toggle('error', !input.value.trim());
-                }
-            }
+                const isEmail = input.id === 'email';
+                const isValid = isEmail ?
+                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) :
+                    value !== '';
+                formGroup.classList.toggle('error', !isValid);
+            };
+
+            contactForm.querySelectorAll('input, textarea').forEach(input => {
+                input.addEventListener('input', () => {
+                    clearTimeout(debounceTimeout);
+                    debounceTimeout = setTimeout(() => validateField(input), 300);
+                });
+                input.addEventListener('blur', () => validateField(input));
+            });
         }
+    });
+</script>
     </script>
-    <script src="js/dropdark.js"></script>
 </body>
 </html>

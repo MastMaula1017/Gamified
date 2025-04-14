@@ -20,6 +20,94 @@ $user_query->close();
 // Use display name if set, otherwise use username
 $display_name = $header_user['display_name'] ? $header_user['display_name'] : $_SESSION['username'];
 ?>
+<style>
+    .user-menu {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .user-avatar:hover {
+        transform: scale(1.05);
+    }
+
+    .user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .user-dropdown {
+        position: absolute;
+        top: 120%;
+        right: 0;
+        background-color: var(--background-color);
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        min-width: 200px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        z-index: 1000;
+    }
+
+    .user-dropdown.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .user-dropdown ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .user-dropdown li {
+        padding: 0;
+        margin: 0;
+    }
+
+    .user-dropdown a {
+        display: block;
+        padding: 12px 20px;
+        color: var(--text-color);
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+    }
+
+    .user-dropdown a:hover {
+        background-color: var(--background-light);
+        color: var(--primary-color);
+    }
+
+    .user-dropdown li.active a {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        .user-dropdown {
+            position: fixed;
+            top: auto;
+            bottom: 70px;
+            right: 20px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+    }
+</style>
 <header>
     <div class="logo">
         <span class="material-symbols-outlined">fitness_center</span>

@@ -199,6 +199,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </main>
 
     <script src="js/profile.js"></script>
-    <script src="js/dropdark.js"></script>
+    <script src="js/header.js"></script>
 </body>
 </html>

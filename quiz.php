@@ -63,23 +63,9 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         </a>
     </nav>
 
+    <script src="js/header.js"></script>
     <script>
-        // Setup user dropdown
-        document.getElementById('user-menu-btn').addEventListener('click', function() {
-            document.getElementById('user-dropdown').classList.toggle('active');
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const userMenuBtn = document.getElementById('user-menu-btn');
-            const userDropdown = document.getElementById('user-dropdown');
-            
-            if (!userMenuBtn.contains(event.target) && !userDropdown.contains(event.target)) {
-                userDropdown.classList.remove('active');
-            }
-        });
-        
-        // Quiz functionality
+        // Initialize quiz functionality once DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
             const quizLoading = document.getElementById('quiz-loading');
             const quizQuestions = document.getElementById('quiz-questions');
@@ -202,6 +188,5 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                 });
         });
     </script>
-    <script src="js/dropdark.js"></script>
 </body>
 </html>

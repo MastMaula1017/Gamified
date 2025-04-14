@@ -94,135 +94,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings - FitQuest</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/settings.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <style>
-        .settings-container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 20px;
-            background-color: var(--background-color);
-            border-radius: var(--border-radius);
-            box-shadow: var(--card-shadow);
-        }
-
-        .settings-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .settings-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group label {
-            color: var(--text-color);
-            font-weight: 500;
-        }
-
-        .form-group input[type="text"],
-        .form-group input[type="email"],
-        .form-group textarea {
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            background-color: var(--background-light);
-            color: var(--text-color);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .profile-image-container {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .profile-image {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 10px;
-        }
-
-        .switch-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: var(--primary-color);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
-        .message {
-            padding: 12px;
-            border-radius: var(--border-radius);
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .success {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success-color);
-        }
-
-        .error {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--danger-color);
-        }
-    </style>
 </head>
 <body>
     <?php include 'includes/header.php'; ?>
@@ -264,57 +137,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="display_name">Display Name</label>
-                    <input type="text" id="display_name" name="display_name" value="<?php echo htmlspecialchars($user['display_name']); ?>">
-                </div>
+                
 
                 <div class="form-group">
                     <label for="bio">Bio</label>
                     <textarea id="bio" name="bio"><?php echo htmlspecialchars($user['bio']); ?></textarea>
                 </div>
 
-                <div class="form-group">
-                    <div class="switch-container">
-                        <label for="dark_mode">Dark Mode</label>
-                        <label class="switch">
-                            <input type="checkbox" id="dark_mode" name="dark_mode" <?php echo $user['dark_mode'] ? 'checked' : ''; ?>>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                </div>
+                
 
                 <button type="submit" name="update_profile" class="submit-btn">Save Changes</button>
             </form>
         </div>
     </main>
-
-    <script>
-        // Setup user dropdown
-        document.getElementById('user-menu-btn').addEventListener('click', function() {
-            document.getElementById('user-dropdown').classList.toggle('active');
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const userMenuBtn = document.getElementById('user-menu-btn');
-            const userDropdown = document.getElementById('user-dropdown');
-            
-            if (!userMenuBtn.contains(event.target) && !userDropdown.contains(event.target)) {
-                userDropdown.classList.remove('active');
+<script src="js/header.js"></script>
+<script>
+    // Preview profile image before upload
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profile-preview').src = e.target.result;
             }
-        });
-
-        // Preview profile image before upload
-        function previewImage(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('profile-preview').src = e.target.result;
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
+            reader.readAsDataURL(input.files[0]);
         }
+    }
+</script>
     </script>
 </body>
 </html>
