@@ -6,8 +6,43 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     exit();
 }
 
-// Include database connection
+// Include database connection and get user data
 require_once('includes/db_connect.php');
+
+// Get header user data
+$header_query = $conn->prepare("SELECT profile_image FROM users WHERE id = ?");
+$header_query->bind_param("i", $_SESSION['user_id']);
+$header_query->execute();
+$header_user = $header_query->get_result()->fetch_assoc();
+$header_query->close();
+
+// Get user data
+$user_id = $_SESSION['user_id'];
+$username = $_SESSION['username'];
+$points = isset($_SESSION['points']) ? $_SESSION['points'] : 0;
+
+// Get today's fitness data if available
+$today = date('Y-m-d');
+$fitness_query = $conn->prepare("SELECT steps, calories, active_minutes FROM fitness_data WHERE user_id = ? AND date = ? LIMIT 1");
+$fitness_query->bind_param("is", $user_id, $today);
+$fitness_query->execute();
+$result = $fitness_query->get_result();
+
+$steps = 0;
+$calories = 0;
+$active_minutes = 0;
+
+if ($result->num_rows > 0) {
+    $fitness_data = $result->fetch_assoc();
+    $steps = $fitness_data['steps'];
+    $calories = $fitness_data['calories'];
+    $active_minutes = $fitness_data['active_minutes'];
+}
+
+// Calculate progress percentages
+$steps_percentage = min(($steps / 10000) * 100, 100);
+$calories_percentage = min(($calories / 2000) * 100, 100);
+$active_minutes_percentage = min(($active_minutes / 60) * 100, 100);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -15,25 +50,67 @@ require_once('includes/db_connect.php');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FitQuest - Gamified Health Platform</title>
-    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="css/dark-theme.css">
 </head>
-<body>
-    <?php include 'includes/header.php'; ?>
+<body class="dark-theme">
+    
+    <header>
+        <a href="index.php" class="logo">
+            <span class="material-symbols-outlined">fitness_center</span>
+            <span>FitQuest</span>
+        </a>
+        
+        <nav class="desktop-nav">
+            <ul>
+                <li<?php echo basename($_SERVER['PHP_SELF']) == 'index.php' ? ' class="active"' : ''; ?>><a href="index.php">Dashboard</a></li>
+                <li<?php echo basename($_SERVER['PHP_SELF']) == 'challenges.php' ? ' class="active"' : ''; ?>><a href="challenges.php">Challenges</a></li>
+                <li<?php echo basename($_SERVER['PHP_SELF']) == 'leaderboard.php' ? ' class="active"' : ''; ?>><a href="leaderboard.php">Leaderboard</a></li>
+                <li<?php echo basename($_SERVER['PHP_SELF']) == 'rewards.php' ? ' class="active"' : ''; ?>><a href="rewards.php">Rewards</a></li>
+                <li<?php echo basename($_SERVER['PHP_SELF']) == 'quiz.php' ? ' class="active"' : ''; ?>><a href="quiz.php">Quiz</a></li>
+                <li<?php echo basename($_SERVER['PHP_SELF']) == 'contact.php' ? ' class="active"' : ''; ?>><a href="contact.php">Contact Us</a></li>
+            </ul>
+        </nav>
+        
+        <div class="user-controls">
+            <div class="controls-right">
+                <button id="theme-toggle" class="icon-button">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                </button>
+                
+                <div class="notifications">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span class="notification-badge">2</span>
+                </div>
+                
+                <div class="user-menu">
+                    <button id="user-menu-btn" class="user-avatar">
+                        <img src="<?php echo htmlspecialchars($header_user['profile_image'] ? 'img/profile_images/' . $header_user['profile_image'] : 'https://via.placeholder.com/40'); ?>" alt="User avatar">
+                    </button>
+                    <div id="user-dropdown" class="dropdown-menu">
+                        <a href="profile.php">Profile</a>
+                        <a href="settings.php">Settings</a>
+                        <a href="api/logout.php">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
 
     <main>
         <section class="welcome-section">
             <div class="welcome-text">
-                <h2>Welcome back, <span id="user-name"><?php echo htmlspecialchars($_SESSION['username']); ?></span>!</h2>
+                <h2>Welcome back, <span><?php echo htmlspecialchars($username); ?></span>!</h2>
                 <p>You're making great progress. Keep it up!</p>
             </div>
             <div class="points-display">
-                <span class="points-value" id="user-points"><?php echo number_format($_SESSION['points']); ?></span>
+                <span class="points-value"><?php echo number_format($points); ?></span>
                 <span class="points-label">Points</span>
             </div>
         </section>
 
-        <section class="stats-section">
+        <section class="progress-section">
             <h2>Today's Progress</h2>
             <div class="stats-grid">
                 <div class="stat-card">
@@ -44,10 +121,10 @@ require_once('includes/db_connect.php');
                         <h3>Steps</h3>
                         <div class="stat-progress">
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: 75%"></div>
+                                <div class="progress-fill" style="width: <?php echo $steps_percentage; ?>%"></div>
                             </div>
                             <div class="progress-text">
-                                <span id="steps-count">7,500</span>
+                                <span id="steps-count"><?php echo number_format($steps); ?></span>
                                 <span class="progress-target">/ 10,000</span>
                             </div>
                         </div>
@@ -61,10 +138,10 @@ require_once('includes/db_connect.php');
                         <h3>Calories</h3>
                         <div class="stat-progress">
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: 60%"></div>
+                                <div class="progress-fill" style="width: <?php echo $calories_percentage; ?>%"></div>
                             </div>
                             <div class="progress-text">
-                                <span id="calories-count">1,200</span>
+                                <span id="calories-count"><?php echo number_format($calories); ?></span>
                                 <span class="progress-target">/ 2,000</span>
                             </div>
                         </div>
@@ -78,14 +155,61 @@ require_once('includes/db_connect.php');
                         <h3>Active Minutes</h3>
                         <div class="stat-progress">
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: 40%"></div>
+                                <div class="progress-fill" style="width: <?php echo $active_minutes_percentage; ?>%"></div>
                             </div>
                             <div class="progress-text">
-                                <span id="active-minutes">30</span>
+                                <span id="active-minutes"><?php echo $active_minutes; ?></span>
                                 <span class="progress-target">/ 60</span>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            
+            <!-- Fitness Data Input Form -->
+            <div class="fitness-input-section">
+                <form id="fitness-form" class="fitness-form">
+                    <div class="form-group">
+                        <label for="fitness-date">Date</label>
+                        <input type="date" id="fitness-date" name="date" value="<?php echo date('Y-m-d'); ?>" max="<?php echo date('Y-m-d'); ?>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="steps-input">Steps</label>
+                        <input type="number" id="steps-input" name="steps" min="0" value="<?php echo $steps; ?>" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="calories-input">Calories Burned</label>
+                        <input type="number" id="calories-input" name="calories" min="0" value="<?php echo $calories; ?>" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="active-minutes-input">Active Minutes</label>
+                        <input type="number" id="active-minutes-input" name="active_minutes" min="0" value="<?php echo $active_minutes; ?>" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Save Progress</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Daily History Table -->
+            <div class="fitness-history-section">
+                <div class="section-header">
+                    <h2>Daily History</h2>
+                </div>
+                <div class="table-wrapper">
+                    <table id="fitness-history-table" class="fitness-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Steps</th>
+                                <th>Calories</th>
+                                <th>Active Minutes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -144,23 +268,7 @@ require_once('includes/db_connect.php');
                 </div>
             </div>
         </section>
-
-        <section class="leaderboard-section">
-            <div class="section-header">
-                <h2>Weekly Leaderboard</h2>
-                <a href="leaderboard.php" class="view-all">View All</a>
-            </div>
-            <div class="leaderboard-container">
-                <div class="leaderboard-header">
-                    <span>Rank</span>
-                    <span>User</span>
-                    <span>Points</span>
-                </div>
-                <div class="leaderboard-body" id="leaderboard-list">
-                    <!-- Leaderboard entries will be populated by JavaScript -->
-                </div>
-            </div>
-        </section>
+        
     </main>
 
     <nav class="mobile-nav">
@@ -185,18 +293,8 @@ require_once('includes/db_connect.php');
             <span>Quiz</span>
         </a>
     </nav>
-<script>
-// Pass PHP session data to JavaScript
-const userData = {
-    name: '<?php echo htmlspecialchars($_SESSION['username']); ?>',
-    points: <?php echo isset($_SESSION['points']) ? (int)$_SESSION['points'] : 0; ?>,
-    steps: 7500,
-    calories: 1200,
-    activeMinutes: 30
-};
-</script>
-<script src="js/script.js"></script>
-<!-- <script src="js/s.js"></script> -->
-    <script src="js/dropdark.js"></script>
+
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/fitness-tracker.js"></script>
 </body>
 </html>

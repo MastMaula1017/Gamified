@@ -36,6 +36,9 @@ body {
     color: var(--text-color);
     background-color: var(--background-light);
     line-height: 1.5;
+    min-height: 100vh;
+    position: relative;
+    overflow-y: auto;
 }
 
 a {
@@ -70,6 +73,9 @@ main {
     margin: 0 auto;
     padding: var(--spacing-xl);
     padding-bottom: 5rem; /* Space for mobile nav */
+    min-height: calc(100vh - 60px); /* Subtract header height */
+    height: auto;
+    overflow-y: auto;
 }
 
 /* Logo */
@@ -493,6 +499,8 @@ main {
 .leaderboard-body {
     max-height: 300px;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 .leaderboard-row {
