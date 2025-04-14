@@ -53,6 +53,7 @@ $active_minutes_percentage = min(($active_minutes / 60) * 100, 100);
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="css/dark-theme.css">
+    <link rel="stylesheet" href="css/fitness.css">
 </head>
 <body class="dark-theme">
     

@@ -180,35 +180,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const notification = document.createElement("div")
     notification.className = `notification ${type}`
     notification.textContent = message
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 15px 25px;
-      border-radius: 4px;
-      z-index: 9999;
-      transition: all 0.3s ease-in-out;
-      opacity: 0;
-      background: ${type === 'success' ? '#4caf50' : '#f44336'};
-      color: white;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    `
 
     // Add to body
     document.body.appendChild(notification)
 
-    // Show notification with animation
-    requestAnimationFrame(() => {
-      notification.style.opacity = '1'
-    })
-
-    // Hide after 3 seconds
+    // Show notification with animation after a brief delay
     setTimeout(() => {
+      notification.classList.add('show')
+    }, 10)
+
+    // Hide after 2 seconds with smooth fade out
+    setTimeout(() => {
+      notification.style.transform = 'translate(-50%, -100%)'
       notification.style.opacity = '0'
+      
       setTimeout(() => {
         notification.remove()
-      }, 300)
-    }, 3000)
+      }, 400)
+    }, 2000)
   }
 
   // Function to update averages
@@ -250,7 +239,12 @@ document.addEventListener("DOMContentLoaded", () => {
 function loadFitnessHistory() {
   console.log("Loading fitness history")
   fetch('api/get_fitness_data.php')
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
     .then((data) => {
       console.log("Fitness history response:", data)
       if (data.success) {
@@ -260,10 +254,20 @@ function loadFitnessHistory() {
         // Update averages and suggestions
         updateAverages(data.averages)
         updateSuggestions(data.suggestions)
+      } else {
+        console.error("API returned error:", data.message);
+        showNotification("Error loading fitness history: " + data.message, "error");
       }
     })
     .catch((error) => {
-      console.error("Error loading fitness history:", error)
+      console.error("Error loading fitness history:", error);
+      showNotification("Failed to load fitness history. Please try refreshing the page.", "error");
+      
+      // Show error in table
+      const tableBody = document.querySelector("#fitness-history-table tbody");
+      if (tableBody) {
+        tableBody.innerHTML = `<tr><td colspan="4" class="error-message">Error loading fitness data. Please try refreshing the page.</td></tr>`;
+      }
     })
 }
 
@@ -307,8 +311,10 @@ function updateFitnessTable(data) {
 }
 
 // Load initial data
+console.log("Loading initial data...")
 loadDailyData(today)
+
+// Load fitness history
+console.log("Loading initial fitness history...")
 loadFitnessHistory()
-  // Load daily data for today
-  loadDailyData(today)
 })

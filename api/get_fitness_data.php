@@ -21,7 +21,7 @@ $end_date = date('Y-m-d');
 $history_start_date = date('Y-m-d', strtotime('-30 days')); // For table display
 $avg_start_date = date('Y-m-d', strtotime('-7 days')); // For averages
 
-error_log("Date range: $start_date to $end_date");
+error_log("Date range: $history_start_date to $end_date");
 
 try {
     // Query to get fitness data for the history table
