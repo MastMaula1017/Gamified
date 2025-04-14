@@ -18,42 +18,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <span class="material-symbols-outlined">fitness_center</span>
-            <h1>FitQuest</h1>
-        </div>
-        <nav class="desktop-nav">
-            <ul>
-                <li><a href="index.php">Dashboard</a></li>
-                <li><a href="challenges.php">Challenges</a></li>
-                <li><a href="leaderboard.php">Leaderboard</a></li>
-                <li><a href="rewards.php">Rewards</a></li>
-                <li class="active"><a href="quiz.php">Quiz</a></li>
-                <li class=""><a href="contact.php">Contact Us</a></li>
-                <?php if(isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true): ?>
-            <li><a href="admin/index.php">Admin Panel</a></li>
-            <?php endif; ?>
-
-            </ul>
-        </nav>
-        <div class="user-menu">
-            <div class="points-display small">
-                <span class="points-value"><?php echo $_SESSION['points']; ?></span>
-                <span class="points-label">Points</span>
-            </div>
-            <div class="user-avatar" id="user-menu-btn">
-                <img src="img/bg.jpg" alt="User avatar">
-            </div>
-            <div class="user-dropdown" id="user-dropdown">
-                <ul>
-                    <li><a href="profile.php">Profile</a></li>
-                    <li><a href="settings.php">Settings</a></li>
-                    <li><a href="api/logout.php">Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </header>
+    <?php include 'includes/header.php'; ?>
 
     <main>
         <section class="page-header">
@@ -236,44 +201,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                     quizLoading.textContent = 'An error occurred. Please try again.';
                 });
         });
-        // Dark Mode Toggle
-const themeToggle = document.createElement('div');
-themeToggle.className = 'theme-toggle';
-themeToggle.innerHTML = `
-  <label>
-    <input type="checkbox" id="theme-checkbox">
-    <span class="toggle-slider"></span>
-    <span class="toggle-icon sun material-symbols-outlined">light_mode</span>
-    <span class="toggle-icon moon material-symbols-outlined">dark_mode</span>
-  </label>
-`;
-
-// Add the toggle to the header (you might want to adjust the placement)
-document.querySelector('.user-menu').prepend(themeToggle);
-
-// Check for saved theme preference or use preferred color scheme
-const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-const currentTheme = localStorage.getItem('theme') || 
-                     (prefersDarkScheme.matches ? 'dark' : 'light');
-
-// Apply the current theme
-document.documentElement.setAttribute('data-theme', currentTheme);
-
-// Set the checkbox state
-if (currentTheme === 'light') {
-  document.getElementById('theme-checkbox').checked = true;
-}
-
-// Theme toggle functionality
-document.getElementById('theme-checkbox').addEventListener('change', function() {
-  if (this.checked) {
-    document.documentElement.setAttribute('data-theme', 'light');
-    localStorage.setItem('theme', 'light');
-  } else {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    localStorage.setItem('theme', 'dark');
-  }
-});
     </script>
+    <script src="js/dropdark.js"></script>
 </body>
 </html>

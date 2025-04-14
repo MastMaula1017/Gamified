@@ -18,42 +18,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <span class="material-symbols-outlined">fitness_center</span>
-            <h1>FitQuest</h1>
-        </div>
-        <nav class="desktop-nav">
-            <ul>
-                <li><a href="index.php">Dashboard</a></li>
-                <li><a href="challenges.php">Challenges</a></li>
-                <li class="active"><a href="leaderboard.php">Leaderboard</a></li>
-                <li><a href="rewards.php">Rewards</a></li>
-                <li><a href="quiz.php">Quiz</a></li>
-                <li class=""><a href="contact.php">Contact Us</a></li>
-                <?php if(isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true): ?>
-            <li><a href="admin/index.php">Admin Panel</a></li>
-            <?php endif; ?>
-
-            </ul>
-        </nav>
-        <div class="user-menu">
-            <div class="points-display small">
-                <span class="points-value"><?php echo $_SESSION['points']; ?></span>
-                <span class="points-label">Points</span>
-            </div>
-            <div class="user-avatar" id="user-menu-btn">
-                <img src="https://via.placeholder.com/40" alt="User avatar">
-            </div>
-            <div class="user-dropdown" id="user-dropdown">
-                <ul>
-                    <li><a href="profile.php">Profile</a></li>
-                    <li><a href="settings.php">Settings</a></li>
-                    <li><a href="api/logout.php">Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </header>
+    <?php include 'includes/header.php'; ?>
 
     <main>
         <section class="page-header">
@@ -99,22 +64,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     </nav>
 
     <script>
-        // Setup user dropdown
-        document.getElementById('user-menu-btn').addEventListener('click', function() {
-            document.getElementById('user-dropdown').classList.toggle('active');
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const userMenuBtn = document.getElementById('user-menu-btn');
-            const userDropdown = document.getElementById('user-dropdown');
-            
-            if (!userMenuBtn.contains(event.target) && !userDropdown.contains(event.target)) {
-                userDropdown.classList.remove('active');
-            }
-        });
-        
-        // Fetch leaderboard data
+        // Fetch and populate leaderboard data
         document.addEventListener('DOMContentLoaded', function() {
             fetch('api/get_leaderboard.php')
                 .then(response => response.json())
@@ -180,92 +130,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
                     console.error('Error:', error);
                 });
         });
-
-        // Initialize theme toggle
-function initializeThemeToggle() {
-  const themeToggleContainer = document.createElement('div');
-  themeToggleContainer.className = 'theme-toggle-container';
-  themeToggleContainer.innerHTML = `
-    <label class="theme-toggle">
-      <input type="checkbox" id="theme-checkbox">
-      <span class="toggle-slider"></span>
-      <span class="toggle-icon sun material-symbols-outlined">light_mode</span>
-      <span class="toggle-icon moon material-symbols-outlined">dark_mode</span>
-    </label>
-  `;
-
-  // Add the toggle to the user menu before points display
-  const userMenu = document.querySelector('.user-menu');
-  const pointsDisplay = document.querySelector('.points-display');
-  userMenu.insertBefore(themeToggleContainer, pointsDisplay);
-
-  // Check for saved theme preference or use preferred color scheme
-  const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-  const currentTheme = localStorage.getItem('theme') || 
-                      (prefersDarkScheme.matches ? 'dark' : 'light');
-
-  // Apply the current theme
-  document.documentElement.setAttribute('data-theme', currentTheme);
-
-  // Set the checkbox state
-  const checkbox = document.getElementById('theme-checkbox');
-  if (currentTheme === 'light') {
-    checkbox.checked = true;
-  }
-
-  // Theme toggle functionality
-  checkbox.addEventListener('change', function() {
-    if (this.checked) {
-      document.documentElement.setAttribute('data-theme', 'light');
-      localStorage.setItem('theme', 'light');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      localStorage.setItem('theme', 'dark');
-    }
-  });
-}
-
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-  initializeThemeToggle();
-  
-  // Your existing leaderboard initialization code
-  // Setup user dropdown
-  document.getElementById('user-menu-btn').addEventListener('click', function() {
-    document.getElementById('user-dropdown').classList.toggle('active');
-  });
-  
-  // Close dropdown when clicking outside
-  document.addEventListener('click', function(event) {
-    const userMenuBtn = document.getElementById('user-menu-btn');
-    const userDropdown = document.getElementById('user-dropdown');
-    
-    if (!userMenuBtn.contains(event.target) && !userDropdown.contains(event.target)) {
-      userDropdown.classList.remove('active');
-    }
-  });
-  
-  // ... rest of your existing JavaScript ...
-});
-document.addEventListener("DOMContentLoaded", function () {
-    const userAvatar = document.querySelector(".user-avatar");
-    const userDropdown = document.querySelector(".user-dropdown");
-
-    if (userAvatar && userDropdown) {
-        userAvatar.addEventListener("click", function (event) {
-            event.stopPropagation(); // Prevents click from bubbling to document
-            userDropdown.classList.toggle("active");
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener("click", function (event) {
-            if (!userAvatar.contains(event.target) && !userDropdown.contains(event.target)) {
-                userDropdown.classList.remove("active");
-            }
-        });
-    }
-});
-
     </script>
+    <script src="js/dropdark.js"></script>
 </body>
 </html>

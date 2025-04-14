@@ -226,45 +226,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_contact'])) {
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <span class="material-symbols-outlined">fitness_center</span>
-            <h1>FitQuest</h1>
-        </div>
-        <nav class="desktop-nav">
-            <ul>
-                <li><a href="index.php">Dashboard</a></li>
-                <li><a href="challenges.php">Challenges</a></li>
-                <li><a href="leaderboard.php">Leaderboard</a></li>
-                <li><a href="quiz.php">Quiz</a></li>
-                <li class="active"><a href="contact.php">Contact Us</a></li>
-                <?php if(isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true): ?>
-            <li><a href="admin/index.php">Admin Panel</a></li>
-            <?php endif; ?>
-            </ul>
-        </nav>
-        <div class="user-menu">
-            <?php if(isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true): ?>
-                <div class="points-display small">
-                    <span class="points-value"><?php echo $_SESSION['points']; ?></span>
-                    <span class="points-label">Points</span>
-                </div>
-                <div class="user-avatar" id="user-menu-btn">
-                    <img src="https://via.placeholder.com/40" alt="User avatar">
-                </div>
-                <div class="user-dropdown" id="user-dropdown">
-                    <ul>
-                        <li><a href="profile.php">Profile</a></li>
-                        <li><a href="settings.php">Settings</a></li>
-                        <li><a href="api/logout.php">Logout</a></li>
-                    </ul>
-                </div>
-            <?php else: ?>
-                <a href="login.php" class="auth-link">Login</a>
-                <a href="register.php" class="auth-link">Register</a>
-            <?php endif; ?>
-        </div>
-    </header>
+    <?php include 'includes/header.php'; ?>
 
     <main>
         <section class="page-header">
@@ -388,23 +350,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_contact'])) {
     </nav>
 
     <script>
-        // Setup user dropdown if logged in
-        const userMenuBtn = document.getElementById('user-menu-btn');
-        if (userMenuBtn) {
-            userMenuBtn.addEventListener('click', function() {
-                document.getElementById('user-dropdown').classList.toggle('active');
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(event) {
-                const userDropdown = document.getElementById('user-dropdown');
-                
-                if (!userMenuBtn.contains(event.target) && !userDropdown.contains(event.target)) {
-                    userDropdown.classList.remove('active');
-                }
-            });
-        }
-        
         // Form validation
         const contactForm = document.getElementById('contact-form');
         
@@ -461,40 +406,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_contact'])) {
                     e.preventDefault();
                 }
             });
-            
+
             // Real-time validation
-            const inputs = contactForm.querySelectorAll('input, textarea');
-            
-            inputs.forEach(input => {
-                input.addEventListener('blur', function() {
-                    validateInput(this);
-                });
-                
-                input.addEventListener('input', function() {
-                    validateInput(this);
-                });
+            contactForm.querySelectorAll('input, textarea').forEach(input => {
+                input.addEventListener('blur', () => validateInput(input));
+                input.addEventListener('input', () => validateInput(input));
             });
-            
+
             function validateInput(input) {
                 const formGroup = input.closest('.form-group');
                 
                 if (input.id === 'email') {
                     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    
-                    if (!input.value.trim() || !emailPattern.test(input.value)) {
-                        formGroup.classList.add('error');
-                    } else {
-                        formGroup.classList.remove('error');
-                    }
+                    formGroup.classList.toggle('error', !input.value.trim() || !emailPattern.test(input.value));
                 } else {
-                    if (!input.value.trim()) {
-                        formGroup.classList.add('error');
-                    } else {
-                        formGroup.classList.remove('error');
-                    }
+                    formGroup.classList.toggle('error', !input.value.trim());
                 }
             }
         }
     </script>
+    <script src="js/dropdark.js"></script>
 </body>
 </html>

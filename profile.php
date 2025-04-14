@@ -153,35 +153,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <span class="material-symbols-outlined">fitness_center</span>
-            <h1>FitQuest</h1>
-        </div>
-        <nav class="desktop-nav">
-            <ul>
-                <li><a href="index.php">Home</a></li>
-                <li><a href="challenges.php">Challenges</a></li>
-                <li><a href="leaderboard.php">Leaderboard</a></li>
-                <li><a href="rewards.php">Rewards</a></li>
-                <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
-                    <li><a href="admin/index.php">Admin Panel</a></li>
-                <?php endif; ?>
-            </ul>
-        </nav>
-        <div class="user-menu">
-            <div class="user-avatar" id="user-menu-btn">
-                <img src="https://via.placeholder.com/40" alt="User avatar">
-            </div>
-            <div class="user-dropdown" id="user-dropdown">
-                <ul>
-                    <li class="active"><a href="profile.php">Profile</a></li>
-                    <li><a href="settings.php">Settings</a></li>
-                    <li><a href="api/logout.php">Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </header>
+    <?php include 'includes/header.php'; ?>
 
     <main>
         <div class="profile-container">
@@ -226,22 +198,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </main>
 
-    <script>
-        // Setup user dropdown
-        document.getElementById('user-menu-btn').addEventListener('click', function() {
-            document.getElementById('user-dropdown').classList.toggle('active');
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const userMenuBtn = document.getElementById('user-menu-btn');
-            const userDropdown = document.getElementById('user-dropdown');
-            
-            if (!userMenuBtn.contains(event.target) && !userDropdown.contains(event.target)) {
-                userDropdown.classList.remove('active');
-            }
-        });
-    </script>
     <script src="js/profile.js"></script>
+    <script src="js/dropdark.js"></script>
 </body>
 </html>

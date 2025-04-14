@@ -11,43 +11,7 @@ include 'includes/session_config.php';
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <span class="material-symbols-outlined">fitness_center</span>
-            <h1>FitQuest</h1>
-        </div>
-        <nav class="desktop-nav">
-            <ul>
-                <li><a href="index.php">Dashboard</a></li>
-                <li><a href="challenges.php">Challenges</a></li>
-                <li><a href="leaderboard.php">Leaderboard</a></li>
-                <li class="active"><a href="rewards.php">Rewards</a></li>
-                <li><a href="quiz.php">Quiz</a></li>
-                <li class=""><a href="contact.php">Contact Us</a></li>
-                <?php if(isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true): ?>
-            <li><a href="admin/index.php">Admin Panel</a></li>
-            <?php endif; ?>
-
-
-            </ul>
-        </nav>
-        <div class="user-menu">
-            <button id="notifications-btn" class="icon-btn">
-                <span class="material-symbols-outlined">notifications</span>
-                <span class="notification-badge"></span>
-            </button>
-            <div class="user-avatar" id="user-menu-btn">
-                <img  id="img10" src="img/bg.jpg" alt="User avatar">
-            </div>
-            <div class="user-dropdown" id="user-dropdown">
-                <ul>
-                    <li><a href="profile.html">Profile</a></li>
-                    <li><a href="settings.html">Settings</a></li>
-                    <li><a href="api/logout.php" id="logout-btn">Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </header>
+    <?php include 'includes/header.php'; ?>
 
     <main>
         <section class="page-header">
@@ -98,8 +62,8 @@ include 'includes/session_config.php';
     </nav>
 
     <script src="js/script.js"></script>
-    <script src="js/s.js"></script>
     <script src="js/rs.js"></script>
-    <!-- <script src="js/rewards.js"></script> -->
+    <script src="js/rewards.js"></script>
+    <script src="js/dropdark.js"></script>
 </body>
 </html>

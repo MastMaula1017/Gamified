@@ -5,6 +5,9 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     header('Location: login.php');
     exit();
 }
+
+// Include database connection
+require_once('includes/db_connect.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -16,43 +19,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <span class="material-symbols-outlined">fitness_center</span>
-            <h1>FitQuest</h1>
-        </div>
-        <nav class="desktop-nav">
-            <ul>
-                <li class="active"><a href="index.php">Dashboard</a></li>
-                <li><a href="challenges.php">Challenges</a></li>
-                <li><a href="leaderboard.php">Leaderboard</a></li>
-                <li><a href="rewards.php">Rewards</a></li>
-                <li><a href="quiz.php">Quiz</a></li>
-                <li><a href="contact.php">Contact Us</a></li>
-
-                <?php if(isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true): ?>
-            <li><a href="admin/index.php">Admin Panel</a></li>
-            <?php endif; ?>
-                
-            </ul>
-        </nav>
-        <div class="user-menu">
-            <button id="notifications-btn" class="icon-btn">
-                <span class="material-symbols-outlined">notifications</span>
-                <span class="notification-badge"></span>
-            </button>
-            <div class="user-avatar" id="user-menu-btn">
-                <img src="https://via.placeholder.com/40" alt="User avatar">
-            </div>
-            <div class="user-dropdown" id="user-dropdown">
-                <ul>
-                    <li><a href="profile.php">Profile</a></li>
-                    <li><a href="settings.php">Settings</a></li>
-                    <li><a href="api/logout.php">Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </header>
+    <?php include 'includes/header.php'; ?>
 
     <main>
         <section class="welcome-section">
@@ -126,7 +93,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         <section class="challenges-section">
             <div class="section-header">
                 <h2>Active Challenges</h2>
-                <a href="challenges.html" class="view-all">View All</a>
+                <a href="challenges.php" class="view-all">View All</a>
             </div>
             <div class="challenges-grid">
                 <div class="challenge-card">
@@ -181,7 +148,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         <section class="leaderboard-section">
             <div class="section-header">
                 <h2>Weekly Leaderboard</h2>
-                <a href="leaderboard.html" class="view-all">View All</a>
+                <a href="leaderboard.php" class="view-all">View All</a>
             </div>
             <div class="leaderboard-container">
                 <div class="leaderboard-header">
