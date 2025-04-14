@@ -62,95 +62,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - FitQuest</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/dark-theme.css">
+    <link rel="stylesheet" href="css/profile.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <style>
-        .profile-container {
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 20px;
-            background-color: var(--background-color);
-            border-radius: var(--border-radius);
-            box-shadow: var(--card-shadow);
-        }
-
-        .profile-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .profile-header h2 {
-            color: var(--text-color);
-            margin-bottom: 10px;
-        }
-
-        .change-password-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group label {
-            color: var(--text-color);
-            font-weight: 500;
-        }
-
-        .form-group input {
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            background-color: var(--background-light);
-            color: var(--text-color);
-        }
-
-        .submit-btn {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 12px;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.2s;
-        }
-
-        .submit-btn:hover {
-            background-color: var(--primary-dark);
-        }
-
-        #password-strength {
-            font-size: 0.875rem;
-            margin-top: 4px;
-        }
-
-        .strength-0 { color: #ef4444; }
-        .strength-1 { color: #f97316; }
-        .strength-2 { color: #eab308; }
-        .strength-3 { color: #22c55e; }
-        .strength-4 { color: #15803d; }
-
-        .message {
-            padding: 12px;
-            border-radius: var(--border-radius);
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .success {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success-color);
-        }
-
-        .error {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--danger-color);
-        }
-    </style>
 </head>
 <body>
     <?php include 'includes/header.php'; ?>
