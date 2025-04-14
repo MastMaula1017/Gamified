@@ -138,6 +138,61 @@ nav li.active a::after {
 
 .icon-button:hover {
   color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  padding: 8px;
+}
+
+#theme-toggle {
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color var(--transition-speed) ease;
+}
+
+#theme-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* User dropdown menu */
+.user-menu {
+  position: relative;
+}
+
+#user-menu-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius);
+  padding: 0.5rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  min-width: 150px;
+  display: none;
+  z-index: 1000;
+}
+
+.dropdown-menu.active {
+  display: block;
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: background-color var(--transition-speed) ease;
+}
+
+.dropdown-menu a:hover {
+  background-color: var(--bg-card-hover);
+  color: var(--text-primary);
 }
 
 .notifications {

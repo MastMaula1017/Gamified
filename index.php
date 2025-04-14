@@ -295,6 +295,7 @@ $active_minutes_percentage = min(($active_minutes / 60) * 100, 100);
     </nav>
 
     <script src="js/theme-toggle.js"></script>
+    <script src="js/header.js"></script>
     <script src="js/fitness-tracker.js"></script>
 </body>
 </html>
