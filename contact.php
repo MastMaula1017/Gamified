@@ -1,91 +1,15 @@
 <?php
+// Enable error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Start session
 session_start();
 
 // Initialize variables
 $success_message = "";
 $error_message = "";
-
-// Check if form was submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_contact'])) {
-    try {
-        // Connect to database
-        require_once('includes/db_connect.php');
-        
-        // Check if database exists
-        if (!mysqli_select_db($conn, "health_gamification")) {
-            throw new Exception("Database 'health_gamification' does not exist. Please set up the database first.");
-        }
-        
-        // Ensure the contact_messages table exists
-    require_once('admin/setup_contact_messages.php');
-    
-    // Reconnect to database since setup script closes connection
-    require_once('includes/db_connect.php');
-    
-    // Get form data and sanitize inputs
-    $name = htmlspecialchars(trim($_POST['name']));
-    $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
-    $subject = htmlspecialchars(trim($_POST['subject']));
-    $message = htmlspecialchars(trim($_POST['message']));
-    
-    // Validate inputs
-    $errors = [];
-    
-    if (empty($name)) {
-        $errors[] = "Name is required";
-    }
-    
-    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Valid email is required";
-    }
-    
-    if (empty($subject)) {
-        $errors[] = "Subject is required";
-    }
-    
-    if (empty($message)) {
-        $errors[] = "Message is required";
-    }
-    
-    // If no errors, insert into database
-    if (empty($errors)) {
-        try {
-            $stmt = $conn->prepare("INSERT INTO contact_messages (name, email, subject, message) VALUES (?, ?, ?, ?)");
-            if (!$stmt) {
-                throw new Exception("Database error: Could not prepare statement. " . $conn->error);
-            }
-            
-            if (!$stmt->bind_param("ssss", $name, $email, $subject, $message)) {
-                throw new Exception("Database error: Could not bind parameters. " . $stmt->error);
-            }
-            
-            if ($stmt->execute()) {
-                $success_message = "Message sent successfully! 🎉 Our team will review your message and get back to you within 24-48 hours. Thank you for reaching out to us!";
-                // Clear form data after successful submission
-                $name = $email = $subject = $message = "";
-            } else {
-                throw new Exception("Database error: Could not save message. " . $stmt->error);
-            }
-            
-            $stmt->close();
-        } catch (Exception $e) {
-            $error_message = "Sorry, we couldn't send your message. Please try again later or contact support directly.";
-            error_log("Contact form error: " . $e->getMessage());
-        }
-    } else {
-        $error_message = implode("<br>", $errors);
-    }
-    
-    } catch (Exception $e) {
-        $error_message = "Sorry, we couldn't process your request. Please try again later.";
-        error_log("Contact form error: " . $e->getMessage());
-    } finally {
-        if (isset($conn)) {
-            $conn->close();
-        }
-    }
-}
+$name = $email = $subject = $message = "";
 ?>
 
 <!DOCTYPE html>
@@ -301,6 +225,84 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_contact'])) {
 </head>
 <body>
     <?php include 'includes/header.php'; ?>
+    
+    <?php
+    // Process form submission after header (to maintain DB connection)
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_contact'])) {
+        error_log("Contact form submitted with data: " . json_encode($_POST));
+        try {
+            // Ensure the contact_messages table exists
+            require_once('admin/setup_contact_messages.php');
+            error_log("Contact messages table setup completed");
+            
+            // Get form data and sanitize inputs
+            $name = htmlspecialchars(trim($_POST['name']));
+            $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
+            $subject = htmlspecialchars(trim($_POST['subject']));
+            $message = htmlspecialchars(trim($_POST['message']));
+            
+            // Validate inputs
+            $errors = [];
+            
+            if (empty($name)) {
+                $errors[] = "Name is required";
+            }
+            
+            if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = "Valid email is required";
+            }
+            
+            if (empty($subject)) {
+                $errors[] = "Subject is required";
+            }
+            
+            if (empty($message)) {
+                $errors[] = "Message is required";
+            }
+            
+            // If no errors, insert into database
+            if (empty($errors)) {
+                try {
+                    // Prepare statement with error handling
+                    $stmt = $conn->prepare("INSERT INTO contact_messages (name, email, subject, message) VALUES (?, ?, ?, ?)");
+                    if (!$stmt) {
+                        error_log("Failed to prepare statement: " . $conn->error);
+                        throw new Exception("Database error: Could not prepare statement");
+                    }
+
+                    // Bind parameters with error handling
+                    if (!$stmt->bind_param("ssss", $name, $email, $subject, $message)) {
+                        error_log("Failed to bind parameters: " . $stmt->error);
+                        throw new Exception("Database error: Could not bind parameters");
+                    }
+
+                    // Execute with error handling
+                    if (!$stmt->execute()) {
+                        error_log("Failed to execute statement: " . $stmt->error);
+                        throw new Exception("Database error: Could not save message");
+                    }
+
+                    error_log("Message inserted successfully, rows affected: " . $stmt->affected_rows);
+                    $success_message = "Message sent successfully! 🎉 Our team will review your message and get back to you within 24-48 hours. Thank you for reaching out to us!";
+                    
+                    // Clear form data after successful submission
+                    $name = $email = $subject = $message = "";
+                    $stmt->close();
+                } catch (Exception $e) {
+                    $error_message = "Sorry, we couldn't send your message. Please try again later or contact support directly.";
+                    error_log("Contact form database error: " . $e->getMessage());
+                }
+            } else {
+                $error_message = implode("<br>", $errors);
+            }
+            
+        } catch (Exception $e) {
+            $error_message = "Sorry, we couldn't process your request. Please try again later.";
+            error_log("Contact form outer error: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+        }
+    }
+    ?>
 
     <main>
         <section class="page-header">
@@ -435,8 +437,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_contact'])) {
         const contactForm = document.getElementById('contact-form');
         
         if (contactForm) {
+            // Add hidden submit_contact field on page load
+            const submitInput = document.createElement('input');
+            submitInput.type = 'hidden';
+            submitInput.name = 'submit_contact';
+            submitInput.value = '1';
+            contactForm.appendChild(submitInput);
+
             contactForm.addEventListener('submit', function(e) {
-                e.preventDefault();
                 let isValid = true;
                 const formData = new FormData(this);
                 
@@ -459,14 +467,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_contact'])) {
                     }
                 });
                 
-                if (isValid) {
-                    const submitInput = document.createElement('input');
-                    submitInput.type = 'hidden';
-                    submitInput.name = 'submit_contact';
-                    submitInput.value = '1';
-                    this.appendChild(submitInput);
-                    this.submit();
-                } else {
+                if (!isValid) {
+                    e.preventDefault();
                     const firstError = document.querySelector('.form-group.error');
                     if (firstError) {
                         firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -495,6 +497,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submit_contact'])) {
         }
     });
 </script>
-    </script>
 </body>
 </html>
