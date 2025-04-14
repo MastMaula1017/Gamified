@@ -99,7 +99,7 @@ include 'includes/session_config.php';
 
     <script src="js/script.js"></script>
     <script src="js/s.js"></script>
-    <script src="js/r.js"></script>
-    <script src="js/rewards.js"></script>
+    <script src="js/rs.js"></script>
+    <!-- <script src="js/rewards.js"></script> -->
 </body>
 </html>
