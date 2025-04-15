@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['update_profile'])) {
         $username = trim($_POST['username']);
         $email = trim($_POST['email']);
-        $display_name = trim($_POST['display_name']);
+        $display_name = isset($_POST['display_name']) ? trim($_POST['display_name']) : '';
         $bio = trim($_POST['bio']);
         $dark_mode = isset($_POST['dark_mode']) ? 1 : 0;
 
@@ -138,6 +138,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
                 </div>
 
+                <div class="form-group">
+                    <label for="display_name">Display Name</label>
+                    <input type="text" id="display_name" name="display_name" value="<?php echo htmlspecialchars($user['display_name']); ?>">
+                </div>
                 
 
                 <div class="form-group">
