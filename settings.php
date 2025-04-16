@@ -138,10 +138,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="display_name">Display Name</label>
-                    <input type="text" id="display_name" name="display_name" value="<?php echo htmlspecialchars($user['display_name']); ?>">
-                </div>
+                
                 
 
                 <div class="form-group">
